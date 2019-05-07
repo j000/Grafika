@@ -134,11 +134,11 @@ gsave
 		clip
 
 		newpath
-		0 dpmm radius2 {
-			/done 1 index radius2 div def
-			0 1 index 35 add moveto
-			radius2 0 rlineto
+		45 dpmm radius2 {
 			% zmienia się od 0->1
+			/done 1 index 45 sub radius2 45 sub div def
+			0 1 index moveto
+			radius2 0 rlineto
 			color_start color_step done mul add
 			dup 1 gt
 			{
@@ -151,7 +151,7 @@ gsave
 	end
 grestore
 
-fale
+% fale
 gsave
 	0 5 translate
 	newpath
