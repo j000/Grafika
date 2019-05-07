@@ -8,7 +8,200 @@
 % use mm as units ;)
 595 210 div dup scale
 
-/Helvetica findfont 50 scalefont setfont
-25 25 moveto (Landscape) show
+% sRGB
+% https://www-cdf.fnal.gov/offline/PostScript/PLRM3.pdf example 4.10
+[
+	/CIEBasedABC
+	<<
+		/DecodeLMN
+		[
+			{
+				dup  0.03928  le
+				{
+					12.92321  div 
+				}
+				{
+					0.055  add  1.055  div  2.4  exp
+				}
+				ifelse
+			}
+			bind dup dup
+		]
+		/MatrixLMN  
+		[
+			0.412457  0.212673  0.019334 
+			0.357576  0.715152  0.119192
+			0.180437  0.072175  0.950301
+		]
+		/WhitePoint
+		[
+			0.9505  1.0  1.0890
+		]
+	>>
+] setcolorspace
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% STUFF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% seed random generator
+1042 srand
+% return random number [0-1]
+/irand {
+	rand 2147483647 div
+} def
+
+% dots per mm @300dpi
+/dpmm 1 11.8 div def
+
+/fala {
+	2 dict begin
+		[
+			/h_spacing /v_spacing
+		]
+		{
+			exch def
+		} forall
+		h_spacing neg irand mul
+		1 index v_spacing mul 1.1 mul
+		moveto
+		0 h_spacing 2 mul 297 h_spacing add {
+			% h_spacing 0.5 mul 0 0 v_spacing h_spacing v_spacing rcurveto
+			% -10 0 -10 v_spacing neg 0 v_spacing neg rcurveto
+			h_spacing 2 div 0 h_spacing 2 div v_spacing h_spacing v_spacing rcurveto
+			h_spacing 2 div 0 h_spacing 2 div v_spacing neg h_spacing v_spacing neg rcurveto
+		} for
+	end
+} def
+
+/fale {
+	0 1 10 {
+		6 30 fala
+	} for
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% RYSOWANIE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% tło
+/background {0.78 0.51 0.13 sethsbcolor} def
+background clippath fill
+
+1 setlinecap
+0 0 1 sethsbcolor
+
+% słońce
+gsave
+	6 dict begin
+		/radius 90 def
+		/radius2 radius 2 mul def
+		% 0.86 1 0.98
+		% 0.125 0.84 0.89
+		/color_start 0.86 def
+		/color_end 0.125 def
+		/color_step color_end 1 add color_start sub def
+
+		297 2 div 210 2 div translate
+		radius neg dup translate
+
+		newpath
+		radius dup dup 0 360 arc
+		clip
+
+		newpath
+		5 dict begin
+			/break 6 def
+			/size 2 def
+			-5 0 moveto
+			{
+				radius2 10 add 0 rlineto
+				0 size rlineto
+				radius2 10 add neg 0 rlineto
+				0 break rlineto
+				% /size size 1.05 mul def
+				/break break 1.1 div def
+
+				currentpoint exch pop radius 1.2 mul gt
+				{
+					radius2 10 add 0 rlineto
+					0 radius rlineto
+					radius2 10 add neg 0 rlineto
+					exit
+				} if
+			} loop
+		end
+		clip
+
+		newpath
+		0 dpmm radius2 {
+			/done 1 index radius2 div def
+			0 1 index 35 add moveto
+			radius2 0 rlineto
+			% zmienia się od 0->1
+			color_start color_step done mul add
+			dup 1 gt
+			{
+				1 sub
+			}
+			if
+			0.89 0.94 sethsbcolor
+			stroke
+		} for
+	end
+grestore
+
+fale
+gsave
+	0 5 translate
+	newpath
+	fale
+	gsave
+		297 -5 lineto
+		0 -5 lineto
+		0.78 1 0.25 sethsbcolor
+		fill
+	grestore
+	0.78 1 1 sethsbcolor
+	stroke
+grestore
+
+% tekst
+gsave
+	5 dict begin
+		/text (CALIFORNIA) def
+		% /Helvetica-Bold findfont 30 scalefont setfont
+		/AvantGarde-Demi findfont 25 scalefont setfont
+		140 5 translate
+		% skrzywienie
+		[
+			1 10 sin 5 sin
+			1 0 0
+		] concat
+		0.50 0.99 1 sethsbcolor
+		0 dpmm 2.5 {
+			dup dup moveto
+			text show
+		} for
+		0.53 0.99 0.7 sethsbcolor
+		0 0 moveto
+		text show
+	end
+grestore
+gsave
+	% /Helvetica-Bold findfont 30 scalefont setfont
+	/AvantGarde-Italic findfont 20 scalefont setfont
+	120 30 translate
+	[
+		1 10 sin 5 sin
+		1 0 0
+	] concat
+	1 -1 moveto
+	0.9 0.9 0.3 sethsbcolor
+	(welcome to) show
+	0 0 moveto
+	0.9 0.5 0.9 sethsbcolor
+	(welcome to) show
+grestore
 
 showpage
